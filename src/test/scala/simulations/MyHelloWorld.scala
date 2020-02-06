@@ -27,6 +27,8 @@ class MyHelloWorld extends Simulation{
   val scn1: ScenarioBuilder = scenario("My Hello Test World")
     .exec(getAllProfile())
       .pause(5 seconds)
+
+
 /*    .check(bodyString.saveAs("responseBody")))
   .exec { session => println(session("responseBody").as[String]); session }*/
 
