@@ -5,14 +5,13 @@ import java.time.format.DateTimeFormatter
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.http.protocol.HttpProtocolBuilder
 
 import scala.concurrent.duration.DurationInt
 import scala.util.Random
 
 class VideoGameFullTest extends Simulation {
 
-  val httpConf: HttpProtocolBuilder = http
+  val httpConf = http
     .baseUrl("http://video-game-db.eu-west-2.elasticbeanstalk.com/app/")
     .header("Accept", "application/json")
 
@@ -23,10 +22,10 @@ class VideoGameFullTest extends Simulation {
   def testDuration: Int = getProperty("DURATION", "60").toInt
 
   // other variables
-  var idNumbers: Iterator[Int] = (20 to 1000).iterator
+  var idNumbers = (20 to 1000).iterator
   val rnd = new Random()
-  val now: LocalDate = LocalDate.now()
-  val pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  val now = LocalDate.now()
+  val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   /*** Helper Methods ***/
   private def getProperty(propertyName: String, defaultValue: String) = {
@@ -44,7 +43,7 @@ class VideoGameFullTest extends Simulation {
   }
 
   /*** Custom Feeder ***/
-  val customFeeder: Iterator[Map[String, Any]] = Iterator.continually(Map(
+  val customFeeder = Iterator.continually(Map(
     "gameId" -> idNumbers.next(),
     "name" -> ("Game-" + randomString(5)),
     "releaseDate" -> getRandomDate(now, rnd),

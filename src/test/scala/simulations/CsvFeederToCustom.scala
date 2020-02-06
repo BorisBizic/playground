@@ -8,9 +8,9 @@ class CsvFeederToCustom extends Simulation {
   val httpConf = http.baseUrl("http://localhost:8080/app/")
     .header("Accept", "application/json")
 
-  var idNumbers: Iterator[Int] = (1 to 10).iterator
+  var idNumbers = (1 to 10).iterator
 
-  val customFeeder: Iterator[Map[String, Int]] = Iterator.continually(Map("gameId" -> idNumbers.next()))
+  val customFeeder = Iterator.continually(Map("gameId" -> idNumbers.next()))
 
 
   def getSpecificVideoGame() = {
@@ -25,6 +25,8 @@ class CsvFeederToCustom extends Simulation {
 
   val scn = scenario("Csv Feeder test")
     .exec(getSpecificVideoGame())
+
+
 
   setUp(
     scn.inject(atOnceUsers(1))
