@@ -15,10 +15,12 @@ class VideoGameFullTest extends Simulation {
     .baseUrl("http://video-game-db.eu-west-2.elasticbeanstalk.com/app/")
     .header("Accept", "application/json")
 
-  /*** Variables ***/
+  /** * Variables ***/
   // runtime variables
   def userCount: Int = getProperty("USERS", "3").toInt
+
   def rampDuration: Int = getProperty("RAMP_DURATION", "10").toInt
+
   def testDuration: Int = getProperty("DURATION", "60").toInt
 
   // other variables
@@ -27,7 +29,7 @@ class VideoGameFullTest extends Simulation {
   val now = LocalDate.now()
   val pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-  /*** Helper Methods ***/
+  /** * Helper Methods ***/
   private def getProperty(propertyName: String, defaultValue: String) = {
     Option(System.getenv(propertyName))
       .orElse(Option(System.getProperty(propertyName)))
@@ -42,7 +44,7 @@ class VideoGameFullTest extends Simulation {
     startDate.minusDays(random.nextInt(30)).format(pattern)
   }
 
-  /*** Custom Feeder ***/
+  /** * Custom Feeder ***/
   val customFeeder = Iterator.continually(Map(
     "gameId" -> idNumbers.next(),
     "name" -> ("Game-" + randomString(5)),
@@ -52,14 +54,14 @@ class VideoGameFullTest extends Simulation {
     "rating" -> ("Rating-" + randomString(4))
   ))
 
-  /*** Before ***/
+  /** * Before ***/
   before {
     println(s"Running test with ${userCount} users")
     println(s"Ramping users over ${rampDuration} seconds")
     println(s"Total Test duration: ${testDuration} seconds")
   }
 
-  /*** HTTP Calls ***/
+  /** * HTTP Calls ***/
   def getAllVideoGames() = {
     exec(
       http("Get All Video Games")
@@ -88,7 +90,7 @@ class VideoGameFullTest extends Simulation {
       .check(status.is(200)))
   }
 
-  /*** Scenario Design ***/
+  /** * Scenario Design ***/
   val scn = scenario("Video Game DB")
     .forever() {
       exec(getAllVideoGames())
@@ -100,7 +102,7 @@ class VideoGameFullTest extends Simulation {
         .exec(deleteLastPostedGame())
     }
 
-  /*** Setup Load Simulation ***/
+  /** * Setup Load Simulation ***/
   setUp(
     scn.inject(
       nothingFor(5 seconds),
@@ -108,8 +110,10 @@ class VideoGameFullTest extends Simulation {
   )
     .protocols(httpConf)
     .maxDuration(testDuration seconds)
+    .assertions(global.responseTime.max.lt(200))
+    .assertions(global.successfulRequests.percent.gt(95))
 
-  /*** After ***/
+  /** * After ***/
   after {
     println("Stress test completed")
   }
