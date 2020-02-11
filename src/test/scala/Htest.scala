@@ -29,22 +29,19 @@ class Htest extends Simulation {
     )
   }
 
-    def postTestCase: ChainBuilder= {
-      exec(
-        http("Post Test Cases")
-          .post("/api/testcases?project_id=1&page=1&page_size=15")
-          //.formParamSeq(Seq(("project_id",18),("page",1),("page_size",15)))
-          .body(RawFileBody("bodies/postBody.json")).asJson
-          .check(status.is(200))
-      )
-    }
-
-  println(RawFileBody("bodies/postBody.json"))
+  def postTestCase: ChainBuilder = {
+    exec(
+      http("Post Test Cases")
+        .post("/api/testcases?project_id=1&page=1&page_size=15")
+        .body(RawFileBody("bodies/postBody.json")).asJson
+        .check(status.is(200))
+    )
+  }
 
   val scn: ScenarioBuilder = scenario("Htest scenario")
     .forever() {
       exec(getGroups)
-        .pause(2 seconds)
+        .pause(2, 5 seconds)
         .exec(postTestCase)
         .pause(2 seconds)
     }
@@ -54,7 +51,15 @@ class Htest extends Simulation {
       nothingFor(5 seconds),
       rampUsers(5) during (30 seconds))
   )
+    .assertions(
+      global.responseTime.max.lt(500),
+      forAll.failedRequests.count.lt(5),
+      details("Bad Request").successfulRequests.percent.gt(90)
+    )
     .protocols(httpConf)
     .maxDuration(30 seconds)
 
+  /*setUp(
+    scn.inject(atOnceUsers(1))
+  ).protocols(httpConf)*/
 }
