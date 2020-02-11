@@ -27,3 +27,4 @@ build.log
 
 # project files to ignore
 !/results/.gitkeep
+src/test/resources/config.properties
